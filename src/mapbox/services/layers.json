@@ -1,0 +1,39 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [37.6173, 55.7558]
+      },
+      "properties": {
+        "id": 1,
+        "type": "store-parking",
+        "name": "Golden Gate Bridge",
+        "category": "landmark",
+        "description": "A famous suspension bridge in San Francisco.",
+        "timestamp": "2024-04-03T12:00:00Z",
+        "elevation_m": 67,
+        "website": "https://www.goldengate.org/"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [37.666, 55.7555]
+      },
+      "properties": {
+        "id": 2,
+        "type": "store-parking",
+        "name": "Alcatraz Island",
+        "category": "historical site",
+        "description": "A former prison island in San Francisco Bay.",
+        "timestamp": "2024-04-03T12:30:00Z",
+        "elevation_m": 40,
+        "website": "https://www.nps.gov/alca/index.htm"
+      }
+    }
+  ]
+}

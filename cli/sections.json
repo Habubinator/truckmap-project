@@ -1,0 +1,333 @@
+[
+  {
+    "name": {
+      "en": "Employment",
+      "uk": "Працевлаштування",
+      "ru": "Трудоустройство"
+    },
+    "subsections": [
+      {
+        "en": "Companies",
+        "uk": "Фірми",
+        "ru": "Фирмы"
+      },
+      {
+        "en": "Insurance",
+        "uk": "Страхування",
+        "ru": "Страховки"
+      },
+      {
+        "en": "Documents",
+        "uk": "Документи",
+        "ru": "Документы"
+      },
+      {
+        "en": "Instructions",
+        "uk": "Інструкції",
+        "ru": "Инструкции"
+      },
+      {
+        "en": "Other",
+        "uk": "Інше",
+        "ru": "Другое"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en": "Labor disputes",
+      "uk": "Трудові спори",
+      "ru": "Трудовые споры"
+    },
+    "subsections": []
+  },
+  {
+    "name": {
+      "en": "Working situations",
+      "uk": "Робочі ситуації",
+      "ru": "Рабочие ситуации"
+    },
+    "subsections": [
+      {
+        "en": "Bridges",
+        "uk": "Мости",
+        "ru": "Мосты"
+      },
+      {
+        "en": "Trains",
+        "uk": "Потяги",
+        "ru": "Поезда"
+      },
+      {
+        "en": "Tunnels",
+        "uk": "Тунелі",
+        "ru": "Тоннели"
+      },
+      {
+        "en": "Ferries",
+        "uk": "Пароми",
+        "ru": "Паромы"
+      },
+      {
+        "en": "Parkings",
+        "uk": "Паркінги",
+        "ru": "Паркинги"
+      },
+      {
+        "en": "Documents",
+        "uk": "Документи",
+        "ru": "Документы"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en": "Work on tarpaulin trucks",
+      "uk": "Робота на тентованому кузові",
+      "ru": "Работа на тенте"
+    },
+    "subsections": [
+      {
+        "en": "Companies/Ports/Terminals",
+        "uk": "Фірми/Порти/Термінали",
+        "ru": "Фирмы/Порты/Терминалы"
+      },
+      {
+        "en": "Cargo questions",
+        "uk": "Питання про вантаж",
+        "ru": "Вопросы про груз"
+      },
+      {
+        "en": "Other",
+        "uk": "Інше",
+        "ru": "Другое"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en": "Work on refrigerated trucks",
+      "uk": "Робота на рефрижераторі",
+      "ru": "Работа на рефрежираторе"
+    },
+    "subsections": [
+      {
+        "en": "Companies/Ports/Terminals",
+        "uk": "Фірми/Порти/Термінали",
+        "ru": "Фирмы/Порты/Терминалы"
+      },
+      {
+        "en": "Cargo questions",
+        "uk": "Питання про вантаж",
+        "ru": "Вопросы про груз"
+      },
+      {
+        "en": "Refrigeration system operation",
+        "uk": "Робота з холодильним обладнанням",
+        "ru": "Работа с холодильной установкой"
+      },
+      {
+        "en": "Other",
+        "uk": "Інше",
+        "ru": "Другое"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en": "Work on container carriers",
+      "uk": "Робота на контейнеровозі",
+      "ru": "Работа на контейнеровозе"
+    },
+    "subsections": [
+      {
+        "en": "Companies/Ports/Terminals",
+        "uk": "Фірми/Порти/Термінали",
+        "ru": "Фирмы/Порты/Терминалы"
+      },
+      {
+        "en": "Operation of platforms/chassis",
+        "uk": "Робота з площадками/шасі",
+        "ru": "Работа с площадками/Шасси"
+      },
+      {
+        "en": "Other",
+        "uk": "Інше",
+        "ru": "Другое"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en": "Work on oversized transports",
+      "uk": "Робота з негабаритними перевезеннями",
+      "ru": "Работа на негабаритных перевозках"
+    },
+    "subsections": [
+      {
+        "en": "Companies/Ports/Terminals",
+        "uk": "Фірми/Порти/Термінали",
+        "ru": "Фирмы/Порты/Терминалы"
+      },
+      {
+        "en": "Operation of platforms/chassis",
+        "uk": "Робота з площадками/шасі",
+        "ru": "Работа с площадками/Шасси"
+      },
+      {
+        "en": "Cargo questions",
+        "uk": "Питання про вантаж",
+        "ru": "Вопросы про груз"
+      },
+      {
+        "en": "Other",
+        "uk": "Інше",
+        "ru": "Другое"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en": "Work on isothermal trucks",
+      "uk": "Робота на ізотермі",
+      "ru": "Работа на изотерме"
+    },
+    "subsections": [
+      {
+        "en": "Companies/Ports/Terminals",
+        "uk": "Фірми/Порти/Термінали",
+        "ru": "Фирмы/Порты/Терминалы"
+      },
+      {
+        "en": "Cargo questions",
+        "uk": "Питання про вантаж",
+        "ru": "Вопросы про груз"
+      },
+      {
+        "en": "Other",
+        "uk": "Інше",
+        "ru": "Другое"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en": "Work on a van",
+      "uk": "Робота на бусі",
+      "ru": "Работа на бусе"
+    },
+    "subsections": [
+      {
+        "en": "Companies/Ports/Terminals",
+        "uk": "Фірми/Порти/Термінали",
+        "ru": "Фирмы/Порты/Терминалы"
+      },
+      {
+        "en": "Cargo questions",
+        "uk": "Питання про вантаж",
+        "ru": "Вопросы про груз"
+      },
+      {
+        "en": "Other",
+        "uk": "Інше",
+        "ru": "Другое"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en": "Work on car carriers",
+      "uk": "Робота на автовозі",
+      "ru": "Работа на автовозе"
+    },
+    "subsections": [
+      {
+        "en": "Companies/Ports/Terminals",
+        "uk": "Фірми/Порти/Термінали",
+        "ru": "Фирмы/Порты/Терминалы"
+      },
+      {
+        "en": "Operation of platforms",
+        "uk": "Робота з площадками",
+        "ru": "Работа с площадками"
+      },
+      {
+        "en": "Other",
+        "uk": "Інше",
+        "ru": "Другое"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en": "Work on tankers",
+      "uk": "Робота на бочках",
+      "ru": "Работа на бочках"
+    },
+    "subsections": [
+      {
+        "en": "Companies/Ports/Terminals",
+        "uk": "Фірми/Порти/Термінали",
+        "ru": "Фирмы/Порты/Терминалы"
+      },
+      {
+        "en": "Dangerous goods",
+        "uk": "Небезпечні вантажі",
+        "ru": "Опасные грузы"
+      },
+      {
+        "en": "Non-dangerous goods",
+        "uk": "Не небезпечні вантажі",
+        "ru": "Не опасные грузы"
+      },
+      {
+        "en": "Other",
+        "uk": "Інше",
+        "ru": "Другое"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en": "Work with a tachograph",
+      "uk": "Робота з тахографом",
+      "ru": "Работа с тахографом"
+    },
+    "subsections": []
+  },
+  {
+    "name": {
+      "en": "Road toll payment",
+      "uk": "Оплата доріг",
+      "ru": "Оплата дорог"
+    },
+    "subsections": [
+      {
+        "en": "Road toll payment by country",
+        "uk": "Оплата доріг по країнах",
+        "ru": "Оплата дорог по странам"
+      },
+      {
+        "en": "Toll payment devices",
+        "uk": "Пристрої для оплати доріг",
+        "ru": "Аппараты для оплаты дорог"
+      }
+    ]
+  },
+  {
+    "name": {
+      "en": "Borders/Border crossing",
+      "uk": "Кор­дони/Перетин кордонів",
+      "ru": "Границы/Переход границ"
+    },
+    "subsections": []
+  },
+  {
+    "name": {
+      "en": "Dangerous goods (ADR)",
+      "uk": "Небезпечні вантажі (ADR)",
+      "ru": "Опасные грузы (ADR)"
+    },
+    "subsections": []
+  }
+]

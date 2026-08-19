@@ -1,0 +1,60 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Apply node_modules patches
+        run: npx patch-package
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Deploy via rsync
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+          rsync -avz --delete --exclude='.env' --exclude='firebase-credentials.json' prisma locales src node_modules package.json public cli $SSH_USER@$SSH_HOST:/root/app
+
+      - name: Build, migrate and restart
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh $SSH_USER@$SSH_HOST "
+            export PATH=\"/root/.local/share/fnm:\$PATH\" &&
+            eval \"\$(/root/.local/share/fnm/fnm env)\" &&
+            cd /root/app &&
+            echo 'Building project...' &&
+            npm run build &&
+            echo 'Applying database schema changes...' &&
+            npx prisma db push &&
+            echo 'Seeding new data...' &&
+            npm run db:seed &&
+            echo 'Restarting Node.js application...' &&
+            pm2 reload ecosystem.config.js &&
+            echo 'Done.'
+          "

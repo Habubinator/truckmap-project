@@ -1,0 +1,759 @@
+generator client {
+  provider = "prisma-client-js"
+  // previewFeatures = ["omitApi"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model User {
+  id                   Int       @id @default(autoincrement())
+  mesiboId             Int?
+  name                 String?   @db.VarChar(64)
+  username             String?   @unique @db.VarChar(64)
+  email                String?   @unique @db.VarChar(64)
+  appleUserId          String?   @unique @db.VarChar(128)
+  longitude            String?
+  latitude             String?
+  companyId            Int?
+  company              Company?  @relation(fields: [companyId], references: [id])
+  photo                String?   @db.VarChar(128)
+  countryIsoCode       String?   @db.VarChar(2)
+  description          String?
+  instagramUrl         String?   @db.VarChar(255)
+  facebookUrl          String?   @db.VarChar(255)
+  tiktokUrl            String?   @db.VarChar(255)
+  whatsappPhone        String?   @db.VarChar(32)
+  viberPhone           String?   @db.VarChar(32)
+  telegramPhone        String?   @db.VarChar(32)
+  pmConfidenciality    String?   @db.VarChar(16)
+  regType              Int?      @db.SmallInt
+  isPublic             Boolean   @default(true) @db.Boolean
+  passwordHash         String?   @map("password_hash") @db.VarChar(256)
+  roleId               Int       @map("role_id")
+  role                 Role      @relation(fields: [roleId], references: [id])
+  isBanned             Boolean   @default(false) @map("is_banned")
+  isMuted              Boolean   @default(false) @map("is_muted")
+  emailVerificationKey String?   @unique @map("email_verification_key") @db.VarChar(36)
+  emailVerifiedAt      DateTime? @map("email_verified_at") @db.Timestamptz(3)
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  closestParkingChatId Int       @default(0)
+  isShowOnParkings     Boolean   @default(true)
+  language             String    @default("en")
+  answerScore          Int       @default(0)
+
+  permissions   UserPermissions[]
+  activities    UserActivity[]
+  RecoveryToken RecoveryToken[]
+  questions     Question[]
+
+  friendsInitiated  Friends[]          @relation("UserInitiatedFriends")
+  friendsReceived   Friends[]          @relation("UserReceivedFriends")
+  Answer            Answer[]
+  QuestionVote      QuestionVote[]
+  AnswerVote        AnswerVote[]
+  AnswerComment     AnswerComment[]
+  CommentVote       CommentVote[]
+  PointReview       PointReview[]
+  ReviewLike        ReviewLike[]
+  ReviewReply       ReviewReply[]
+  chats             UserChat[]
+  ownerOfChats      Chat[]
+  toNotifications   NotificationList[] @relation("NotificationRecipient")
+  fromnotifications NotificationList[] @relation("NotificationSender")
+  cadences          Cadence[]
+  subscription      Subscription?
+  reports           Report[]
+  reportedReports   Report[]           @relation("ReportedUser")
+  resolvedReports   Report[]           @relation("ReportResolver")
+  createdCompanies  Company[]          @relation("CompanyCreator")
+  pointInstructions PointInstruction[] @relation("PointInstructionCreator")
+
+  // TEST
+  LocationLog LocationLog[]
+
+  @@index([roleId])
+  @@map("users")
+}
+
+model LocationLog {
+  uuid      String   @id @default(uuid()) @db.Uuid
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  longitude String?
+  latitude  String?
+  reason    String?
+  updatedAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+}
+
+model Friends {
+  forId    Int
+  friendId Int
+  status   Int  @default(2)
+  for      User @relation(name: "UserInitiatedFriends", fields: [forId], references: [id], onDelete: Cascade)
+  friend   User @relation(name: "UserReceivedFriends", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@id([forId, friendId])
+}
+
+model Company {
+  id        Int           @id @default(autoincrement())
+  label     String        @unique
+  logo      String?       @db.VarChar(128)
+  chatId    Int?          @unique
+  chat      Chat?         @relation(fields: [chatId], references: [mesiboId], onDelete: Cascade, onUpdate: Cascade)
+  members   User[]
+  status    CompanyStatus @default(PENDING)
+  creatorId Int?
+  creator   User?         @relation("CompanyCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique @db.VarChar(16)
+  permissions RolePermission[]
+  users       User[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id       Int              @id @default(autoincrement())
+  resource String           @db.VarChar(32)
+  action   String           @db.VarChar(32)
+  roles    RolePermission[]
+
+  @@unique([resource, action])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           Int               @id @default(autoincrement())
+  roleId       Int               @map("role_id")
+  role         Role              @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId Int               @map("permission_id")
+  permission   Permission        @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  users        UserPermissions[]
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model RecoveryToken {
+  userId    Int      @id @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @map("token_hash")
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+
+  @@map("recovery_tokens")
+}
+
+model UserPermissions {
+  userId           Int            @map("user_id")
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rolePermissionId Int            @map("role_permission_id")
+  rolePermission   RolePermission @relation(fields: [rolePermissionId], references: [id], onDelete: Cascade)
+
+  @@id([userId, rolePermissionId])
+  @@map("user_permissions")
+}
+
+model UserSession {
+  id                String   @id @default(uuid()) @db.Uuid
+  ip                String
+  userAgent         String   @map("user_agent")
+  refreshToken      String   @map("refresh_token")
+  userId            Int      @map("user_id")
+  notificationToken String?  @map("notification_token")
+  lastRefreshAt     DateTime @updatedAt @map("last_refresh_at") @db.Timestamptz(3)
+
+  @@unique([userAgent, userId])
+  @@index([userId], type: Hash)
+  @@map("user_sessions")
+}
+
+model UserActivity {
+  userId         Int      @map("user_id")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  ip             String
+  lastActivityAt DateTime @default(now()) @map("last_activity_at") @db.Timestamptz(3)
+
+  @@id([userId, ip])
+  @@index([userId])
+  @@index([ip])
+  @@map("user_activities")
+}
+
+model UserBan {
+  userId    Int      @id @map("user_id")
+  reason    String   @map("reason") @db.VarChar(512)
+  expiredAt DateTime @map("expired_at") @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("user_bans")
+}
+
+model UserMute {
+  userId    Int      @id @map("user_id")
+  reason    String?  @map("reason") @db.VarChar(512)
+  expiredAt DateTime @map("expired_at") @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("user_mutes")
+}
+
+model Point {
+  id                       Int           @id @default(autoincrement())
+  origId                   String?
+  type                     String?
+  name                     String?
+  address                  String?
+  longitude                String?
+  latitude                 String?
+  number_of_parking_spots  Int?
+  number_of_bookable_spots Int?
+  verified                 Boolean?
+  reviews_count            Int?
+  reviews_rating           Int?
+  icon_url                 String?
+  slug                     String?
+  bookable                 Boolean?
+  price_per_night          String?
+  security_rating          Int?
+  rchat                    Int           @default(50)
+  chatid                   Int?          @unique
+  chat                     Chat?              @relation(fields: [chatid], references: [mesiboId], onDelete: Cascade, onUpdate: Cascade)
+  PointReview              PointReview[]
+  instructions             PointInstruction[]
+
+  @@map("points")
+}
+
+model PointInstruction {
+  id          Int                    @id @default(autoincrement())
+  pointId     Int
+  point       Point                  @relation(fields: [pointId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  type        PointInstructionType
+  title       String?                @db.VarChar(128)
+  description String?                @db.Text
+  latitude    String?
+  longitude   String?
+  status      PointInstructionStatus @default(PENDING)
+  creatorId   Int?
+  creator     User?                  @relation("PointInstructionCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  createdAt   DateTime               @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime               @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([pointId, status])
+  @@index([creatorId])
+  @@map("point_instructions")
+}
+
+model PointReview {
+  id        Int           @id @default(autoincrement())
+  user      User          @relation(fields: [userId], references: [id])
+  userId    Int
+  point     Point         @relation(fields: [pointId], references: [id])
+  pointId   Int
+  rating    Int           @db.SmallInt // 1–5
+  text      String?       @db.Text
+  images    ReviewImage[]
+  likes     ReviewLike[]
+  replies   ReviewReply[]
+  createdAt DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime      @updatedAt @db.Timestamptz(3)
+
+  @@index([userId])
+  @@index([pointId])
+  @@map("point_reviews")
+}
+
+model ReviewImage {
+  id       Int         @id @default(autoincrement())
+  review   PointReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId Int
+  imageUrl String      @db.VarChar(256)
+
+  @@index([reviewId])
+  @@map("review_images")
+}
+
+model ReviewLike {
+  id       Int         @id @default(autoincrement())
+  review   PointReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId Int
+  user     User        @relation(fields: [userId], references: [id])
+  userId   Int
+
+  @@unique([reviewId, userId])
+  @@map("review_likes")
+}
+
+model ReviewReply {
+  id        Int           @id @default(autoincrement())
+  review    PointReview   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId  Int
+  user      User          @relation(fields: [userId], references: [id])
+  userId    Int
+  text      String        @db.Text
+  parent    ReviewReply?  @relation("ReplyParent", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId  Int?
+  children  ReviewReply[] @relation("ReplyParent")
+  createdAt DateTime      @default(now()) @db.Timestamptz(3)
+
+  @@index([reviewId])
+  @@index([parentId])
+  @@map("review_replies")
+}
+
+model Message {
+  id         Int     @id
+  status     String
+  reason     String?
+  from       Int
+  fromAdress String
+  to         Int
+  toAdress   String
+  title      String?
+  subtitle   String?
+  message    String?
+  url        String?
+  text       String?
+  data       String?
+  chat       Chat    @relation(fields: [to], references: [mesiboId], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model UserChat {
+  userId        Int     @map("user_id")
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  chatId        Int     @map("chat_id")
+  chat          Chat    @relation(fields: [chatId], references: [mesiboId], onDelete: Cascade, onUpdate: Cascade)
+  notifications Boolean @default(true)
+  isAdmin       Boolean @default(false)
+  isOwner       Boolean @default(false)
+
+  @@id([userId, chatId])
+}
+
+model Chat {
+  mesiboId Int        @id
+  name     String?
+  photo    String?
+  joinlink String?    @default(uuid()) @db.Uuid
+  typeId   Int        @default(3)
+  ownerId  Int?
+  owner    User?      @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  messages Message[]
+  point    Point?
+  Company  Company?
+  members  UserChat[]
+}
+
+model QSection {
+  id           Int                   @id @default(autoincrement())
+  name         String                @default("")
+  subsections  QSubsection[]
+  questions    Question[]
+  translations QSectionTranslation[]
+}
+
+model QSectionTranslation {
+  title     String
+  lang      String
+  sectionId Int
+  section   QSection @relation(fields: [sectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([sectionId, title, lang])
+}
+
+model QSubsection {
+  id           Int                      @id @default(autoincrement())
+  name         String                   @default("")
+  translations QSubsectionTranslation[]
+  sectionId    Int
+  section      QSection                 @relation(fields: [sectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  questions    Question[]
+}
+
+model QSubsectionTranslation {
+  title        String
+  lang         String
+  subsectionId Int
+  subsection   QSubsection @relation(fields: [subsectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([subsectionId, title, lang])
+}
+
+model Question {
+  id               Int                @id @default(autoincrement())
+  title            String
+  content          String
+  sectionId        Int
+  subsectionId     Int?
+  resolved         Boolean            @default(false)
+  section          QSection           @relation(fields: [sectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  subsection       QSubsection?       @relation(fields: [subsectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  creatorId        Int
+  creator          User               @relation(fields: [creatorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt        DateTime           @default(now())
+  bestAnswerId     Int?               @unique
+  bestAnswer       Answer?            @relation("BestAnswer", fields: [bestAnswerId], references: [id])
+  answers          Answer[]           @relation("Answers")
+  questionVotes    QuestionVote[]
+  NotificationList NotificationList[]
+}
+
+model Answer {
+  id                 Int       @id @default(autoincrement())
+  content            String
+  questionId         Int
+  authorId           Int
+  markedAsIrrelevant Boolean   @default(false)
+  isEdited           Boolean   @default(false)
+  isDeleted          Boolean   @default(false)
+  editedAt           DateTime?
+  deletedAt          DateTime?
+  createdAt          DateTime  @default(now())
+
+  question Question     @relation("Answers", fields: [questionId], references: [id], onDelete: Cascade)
+  author   User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes    AnswerVote[]
+
+  bestForQuestion Question? @relation("BestAnswer")
+
+  comments         AnswerComment[]    @relation("AnswerComments")
+  parentComment    AnswerComment?     @relation("CommentAnswer", fields: [parentCommentId], references: [id])
+  parentCommentId  Int?
+  NotificationList NotificationList[]
+}
+
+model AnswerComment {
+  id        Int       @id @default(autoincrement())
+  content   String
+  answerId  Int
+  authorId  Int
+  parentId  Int? // Для вложенных комментариев
+  isEdited  Boolean   @default(false)
+  isDeleted Boolean   @default(false)
+  editedAt  DateTime?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  answer  Answer          @relation("AnswerComments", fields: [answerId], references: [id], onDelete: Cascade)
+  author  User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent  AnswerComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies AnswerComment[] @relation("CommentReplies")
+  votes   CommentVote[]
+
+  answerReply Answer[] @relation("CommentAnswer")
+
+  @@index([answerId])
+  @@index([parentId])
+}
+
+model CommentVote {
+  id        Int @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  value     Int
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment AnswerComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+}
+
+model QuestionVote {
+  id         Int @id @default(autoincrement())
+  userId     Int
+  questionId Int
+  value      Int
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+}
+
+model AnswerVote {
+  id       Int @id @default(autoincrement())
+  userId   Int
+  answerId Int
+  value    Int
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answer Answer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, answerId])
+}
+
+model TraficBans {
+  id             Int      @id @default(autoincrement())
+  date           DateTime
+  country        String
+  timeString     String
+  detailsUrl     String?
+  additionalInfo String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([date, country, timeString])
+  @@index([date])
+  @@index([country])
+  @@index([date, country])
+}
+
+model NotificationList {
+  uuid       String   @id @default(uuid()) @db.Uuid
+  title      String
+  body       String
+  type       Int
+  id         String
+  userId     Int
+  fromUserId Int?
+  questionId Int?
+  answerId   Int?
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  user     User      @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  fromUser User?     @relation("NotificationSender", fields: [fromUserId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  question Question? @relation(fields: [questionId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  answer   Answer?   @relation(fields: [answerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+}
+
+enum Currency {
+  USD
+  EUR
+  UAH
+  PLN
+  CZK
+  HUF
+  RON
+
+  @@map("currencies")
+}
+
+model Cadence {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  label        String   @db.VarChar(128)
+  startDate    DateTime @map("start_date") @db.Timestamptz(3)
+  endDate      DateTime @map("end_date") @db.Timestamptz(3)
+  mileageStart Float    @map("mileage_start")
+  mileageEnd   Float?   @map("mileage_end")
+  truck        String   @db.VarChar(64)
+  truckPhoto   String?  @map("truck_photo") @db.VarChar(256)
+  dayLength    Float    @map("day_length") // hours per day
+  wheelTime    Float    @map("wheel_time") // actual driving hours per day
+  paycheck     Float?
+  currency     Currency @default(USD)
+  isFinished   Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  // Relations
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  weeks CadenceWeek[]
+  days  CadenceDay[]
+
+  @@index([userId])
+  @@index([startDate, endDate])
+  @@index([userId, startDate])
+  @@map("cadences")
+}
+
+model CadenceWeek {
+  id        Int      @id @default(autoincrement())
+  cadenceId Int      @map("cadence_id")
+  start     DateTime @db.Timestamptz(3)
+  end       DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  // Relations
+  cadence Cadence      @relation(fields: [cadenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  days    CadenceDay[]
+
+  @@index([cadenceId])
+  @@index([start, end])
+  @@map("cadence_weeks")
+}
+
+model CadenceDay {
+  id            Int       @id @default(autoincrement())
+  weekId        Int       @map("week_id")
+  cadenceId     Int       @map("cadence_id")
+  date          DateTime  @db.Date
+  dayOfWeek     Int       @map("day_of_week") // 1=Mon..7=Sun
+  start         DateTime? @db.Timestamptz(3)
+  end           DateTime? @db.Timestamptz(3)
+  drivingHours  Float?    @map("driving_hours")
+  mileageStart  Float?    @map("mileage_start")
+  mileageEnd    Float?    @map("mileage_end")
+  wasPause      Boolean   @default(false)
+  isShiftOpen   Boolean   @default(false) @map("is_shift_open")
+  isShiftClosed Boolean   @default(false) @map("is_shift_closed")
+  isDayOff      Boolean   @default(false) @map("is_day_off")
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  // Relations
+  week    CadenceWeek @relation(fields: [weekId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cadence Cadence     @relation(fields: [cadenceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([weekId])
+  @@index([cadenceId])
+  @@index([date])
+  @@index([start, end])
+  @@map("cadence_days")
+}
+
+model Tariff {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(128)
+  description String?  @db.Text
+  price       Float
+  currency    Currency @default(USD)
+  duration    Int // Duration in days
+  isActive    Boolean  @default(true) @map("is_active")
+  features    Json? // JSON array of features included in this tariff
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  // Relations
+  subscriptions Subscription[]
+
+  @@index([isActive])
+  @@map("tariffs")
+}
+
+model Subscription {
+  id        Int                @id @default(autoincrement())
+  userId    Int                @unique @map("user_id")
+  tariffId  Int                @map("tariff_id")
+  status    SubscriptionStatus @default(ACTIVE)
+  startDate DateTime           @map("start_date") @db.Timestamptz(3)
+  endDate   DateTime           @map("end_date") @db.Timestamptz(3)
+  autoRenew Boolean            @default(false) @map("auto_renew")
+  createdAt DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tariff Tariff @relation(fields: [tariffId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([status])
+  @@index([endDate])
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  SUSPENDED
+
+  @@map("subscription_statuses")
+}
+
+model Report {
+  id          Int          @id @default(autoincrement())
+  userId      Int          @map("user_id")
+  reportedId  Int?         @map("reported_id") // ID of reported user/content
+  type        ReportType
+  category    String       @db.VarChar(64)
+  reason      String       @db.Text
+  status      ReportStatus @default(PENDING)
+  description String?      @db.Text
+  metadata    Json? // Additional data like coordinates, content ID, etc.
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  resolvedAt  DateTime?    @map("resolved_at") @db.Timestamptz(3)
+  resolvedBy  Int?         @map("resolved_by")
+
+  // Relations
+  user         User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  reportedUser User? @relation("ReportedUser", fields: [reportedId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  resolver     User? @relation("ReportResolver", fields: [resolvedBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([userId])
+  @@index([reportedId])
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+  @@map("reports")
+}
+
+enum CompanyStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PointInstructionType {
+  ENTRANCE
+  PARKING
+  REGISTRATION
+  EXIT
+}
+
+enum PointInstructionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ReportType {
+  USER
+  CONTENT
+  PARKING_SPOT
+  SAFETY_ISSUE
+  SPAM
+  HARASSMENT
+  OTHER
+
+  @@map("report_types")
+}
+
+enum ReportStatus {
+  PENDING
+  UNDER_REVIEW
+  RESOLVED
+  REJECTED
+  CLOSED
+
+  @@map("report_statuses")
+}
+
+model Country {
+  id             Int                      @id @default(autoincrement())
+  isoCode        String                   @unique @db.VarChar(2)
+  tachographCode String                   @db.VarChar(5)
+  rules          CountryRuleTranslation[]
+}
+
+model CountryRuleTranslation {
+  id              Int     @id @default(autoincrement())
+  countryId       Int
+  country         Country @relation(fields: [countryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  lang            String  @db.VarChar(5)
+  name            String?
+  roadPayment     String? @db.Text
+  speedLimits     String? @db.Text
+  axleLoad        String? @db.Text
+  seatbelts       String? @db.Text
+  trafficLights   String? @db.Text
+  alcoholLimits   String? @db.Text
+  drugDriving     String? @db.Text
+  prohibitedLanes String? @db.Text
+  helmet          String? @db.Text
+  mobilePhone     String? @db.Text
+  specialRules    String? @db.Text
+
+  @@unique([countryId, lang])
+}
